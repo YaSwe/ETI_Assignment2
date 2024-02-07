@@ -3,11 +3,12 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"log"
+	"net/http"
+
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
-	"log"
-	"net/http"
 )
 
 var (
@@ -46,8 +47,8 @@ func main() {
 		router.HandleFunc("/api/orders/{orderID}", HandleOrderRequest).Methods("GET", "PATCH") // Get, update specific order
 
 		// Review and Rating Service Routes
-		router.HandleFunc("/api/products/{productID}/reviews", ListProductReviews).Methods("GET") // Get all reviews for a product
-		router.HandleFunc("/api/products/{productID}/reviews", SubmitProductReview).Methods("POST") // Submit a new review for a product
+		router.HandleFunc("/api/products/{productID}/reviews", GetFeedbackHandler).Methods("GET") // Get all reviews for a product
+		router.HandleFunc("/api/products/{productID}/reviews", AddFeedbackHandler).Methods("POST") // Submit a new review for a product
 	*/
 
 	// Enable CORS
