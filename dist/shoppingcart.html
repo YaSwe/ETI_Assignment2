@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart</title>
+<link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <div class="cart-container">
+        <div class="shopping-cart">
+            <div class="cart-header">
+                <h1>Shopping Cart</h1>
+                <p>3 items</p>
+            </div>
+            <div class="cart-items">
+                <div class="cart-item">
+                    <img src="assets/products/bears.PNG" alt="Shirt">
+
+                    <span>Cotton T-shirt</span>
+                    <div class="quantity-section">
+                        <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
+                        <input type="number" id="quantity-input" value="0" min="0">
+                        <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+                    </div>
+                    <span class="cart-price">€44.00</span>
+                    <button class="delCartItemBtn"><ion-icon name="close-outline"></ion-icon></button>
+                </div>
+                <div class="cart-item">
+                    <img src="assets/products/bamboo-cutleryset.jpg" alt="Shirt">
+                    <span>Cotton T-shirt</span>
+                    <div class="quantity-section">
+                        <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
+                        <input type="number" id="quantity-input" value="0" min="0">
+                        <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+                    </div>
+                    <span class="cart-price">€44.00</span>
+                    <button class="delCartItemBtn"><ion-icon name="close-outline"></ion-icon></button>
+                </div>
+                <div class="cart-item">
+                    <img src="assets/products/honey-cleanser.webp" alt="Shirt">
+                    <span>Cotton T-shirt</span>
+                    <div class="quantity-section">
+                        <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
+                        <input type="number" id="quantity-input" value="0" min="0">
+                        <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+                    </div>
+                    <span class="cart-price">€44.00</span>
+                    <button class="delCartItemBtn"><ion-icon name="close-outline"></ion-icon></button>
+                </div>
+            </div>
+            <a href="products.html">Back to shop</a>
+        </div>
+        <div class="summary">
+            <h1>Summary</h1>
+            <div class="summary-items">
+                <span>ITEMS 3</span>
+                <span>€132.00</span>
+            </div>
+            <div class="total-price">
+                <span>TOTAL PRICE</span>
+                <span>€137.00</span>
+            </div>
+            <button class="checkout">CHECKOUT</button>
+        </div>
+    </div>
+</body>
+<script src="bundle.js"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</html>

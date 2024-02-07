@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link href="main.css" rel="stylesheet">
+</head>
+<body>
+    <main>
+        <form id="profileForm" class="form">
+            <div class="form-container">
+                <h2>Register</h2>
+                <div class="input-group">
+                    <input type="text" id="registerName" required>
+                    <label for="registerName">Name</label>         
+                </div>
+                <div class="input-group">
+                    <input type="email" id="registerEmail" required>
+                    <label for="registerEmail">Email</label>         
+                </div>
+                <div class="input-group">
+                    <input type="password" id="registerPassword" required>
+                    <label for="registerPassword">Password</label>         
+                </div>
+                <div id="registerError" class="error-message" style="display: none;"></div>
+                <button type="submit">Register</button>
+            </div>
+        </form>
+    </main>
+</body>
+<script src="bundle.js"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</html>

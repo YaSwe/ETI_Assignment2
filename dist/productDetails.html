@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Details</title>
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+    <main>
+        <div class="productDetails-container">
+            <img src="" alt="Sneakers" class="main-image">
+            <div class="product-details">
+                <h2 class="product-title"></h2>
+                <p class="product-description"></p>
+                <div class="price-section">
+                    <span class="price"></span>
+                </div>
+                <div class="quantity-section">
+                    <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
+                    <input type="number" id="quantity-input" value="0" min="0">
+                    <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+                </div>
+                <button class="add-to-cart-btn">Add to cart</button>
+            </div>
+        </div>
+    </main>
+</body>
+<script src="bundle.js"></script>
+<script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+<script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</html>
