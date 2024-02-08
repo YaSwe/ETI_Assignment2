@@ -26,7 +26,7 @@ func HandleProductRequest(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(val)
 	} else {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "Invalid Product ID")
+		fmt.Fprintf(w, "Product not found")
 	}
 }
 
@@ -83,7 +83,7 @@ func isProductExist(id string) (Product, bool) {
 	var p Product
 
 	result := db.QueryRow("SELECT * FROM products WHERE ProductID=?", id)
-	err := result.Scan(&id, &p.ProductTitle, &p.ProductDesc, &p.ProductImage, &p.Price, &p.Quantity)
+	err := result.Scan(&p.ProductID, &p.ProductTitle, &p.ProductDesc, &p.ProductImage, &p.Price, &p.Quantity)
 	if err == sql.ErrNoRows {
 		return p, false
 	}

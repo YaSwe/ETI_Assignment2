@@ -15,4 +15,3 @@ handler.handleClicks();
 if (localStorage.getItem('accountID')) {
     dom.isUserLoggedIn();
 } 
-

@@ -1,5 +1,4 @@
-import account from './account';
-import category from './category';
+import cart from './cart';
 
 const dom = (() => {
     const isUserLoggedIn = () => {
@@ -42,9 +41,12 @@ const dom = (() => {
 
     const displayAllProducts = (data) => {
         const productListings = document.querySelector('.product-listings');
-        if (localStorage.getItem('userType') == 'user') {
-            document.querySelector('.createProductBtn').style.display = 'none';
-        }
+
+        const createProductBtn =  document.querySelector('.createProductBtn');
+        if (localStorage.getItem('userType') == 'user' && createProductBtn) {
+            createProductBtn.style.display = 'none';
+        } 
+
         let keys = Object.keys(data.Products);
 
         if (productListings) {
@@ -69,8 +71,11 @@ const dom = (() => {
         const productTitle = document.querySelector('.product-title');
         const productDesc = document.querySelector('.product-description');
         const productPrice = document.querySelector('.price');
-        const addToCartBtn = document.querySelector('.add-to-cart-btn');
 
+        const addToCartBtn = document.querySelector('.add-to-cart-btn');
+        const quantityInput = document.querySelector('#quantity-input');
+        const increaseQBtn = document.querySelector('.increase-quantity');
+        const decreaseQBtn = document.querySelector('.decrease-quantity');
 
         if (productDetails) {
             productImage.src = `assets/products/${productData['ProductImage']}`;
@@ -79,6 +84,9 @@ const dom = (() => {
             productPrice.textContent = '$' + productData['Price'];
 
             addToCartBtn.setAttribute('data-productid', productData['ProductID']);
+            quantityInput.setAttribute('data-productid', productData['ProductID']);
+            increaseQBtn.setAttribute('data-productid', productData['ProductID']);
+            decreaseQBtn.setAttribute('data-productid', productData['ProductID']);
 
         }
         else
@@ -101,45 +109,127 @@ const dom = (() => {
         itemQuantityInput.value = itemQuantity; 
     }
 
-    function updateQuantity(productId, newQuantity) {
-        cartApi.modifyCartItem(localStorage.getItem('CartID'), productId, newQuantity, (error, data) => {
+    const updateQuantity = (productId, newQuantity) => {
+        cart.modifyCartItem(localStorage.getItem('cartID'), productId, newQuantity, (error, data) => {
             if (error) {
                 console.error('Error updating cart item:', error);
             } else {
-                console.log('Cart item updated:', data);
-                //window.location.reload(); 
+                refreshCartItemDisplay(productId, newQuantity);
             }
         });
     }
     
-    function deleteCartItem(productId) {
-        cartApi.deleteCartItem(localStorage.getItem('CartID'), productId, (error, data) => {
+    const deleteCartItem = (productId) => {
+        cart.deleteCartItem(localStorage.getItem('cartID'), productId, (error, data) => {
             if (error) {
                 console.error('Error deleting cart item:', error);
             } else {
                 console.log('Cart item deleted:', data);
-                window.location.reload(); 
+                removeCartItemDisplay(productId);
             }
         });
     }
 
-    const displayProductInCart = (productData) => {
+    const populateShoppingCart = () => {
+        const cartID = localStorage.getItem('cartID');
+        if (!cartID) {
+            console.error('No cart found.');
+            return;
+        }
+
+        cart.getCartItems(cartID, (items) => {
+            const cartItemsContainer = document.querySelector('.cart-items');
+            cartItemsContainer.innerHTML = '';
+            items.forEach(item => {
+                displayProductInCart(item);
+            });
+            updateCartSummary(items);
+        });
+    };
+
+    const displayProductInCart = (item) => {
         const cartItemsContainer = document.querySelector('.cart-items');
-        const productElement = document.createElement('div');
-        productElement.className = 'cart-item';
-        productElement.innerHTML = `
-            <img src="${productData.productImage}" alt="${productData.productName}">
-            <span>${productData.productName}</span>
+        const cartItemElement = document.createElement('div');
+        cartItemElement.classList.add('cart-item');
+        cartItemElement.innerHTML = `
+            <img src="assets/products/${item.ProductImage}" alt="${item.ProductTitle}">
+            <span>${item.ProductTitle}</span>
             <div class="quantity-section">
-                <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
-                <input type="number" id="quantity-input" value="${productData.quantity}" min="0">
-                <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+                <button class="quantity-btn decrease-quantity" data-productid="${item.ProductID}"><ion-icon name="remove-outline"></ion-icon></button>
+                <input type="number" id="quantity-input" value="${item.Quantity}" min="0" data-productid="${item.ProductID}">
+                <button class="quantity-btn increase-quantity" data-productid="${item.ProductID}"><ion-icon name="add-outline"></ion-icon></button>
             </div>
-            <span class="cart-price">€${productData.productPrice}</span>
-            <button class="delCartItemBtn"><ion-icon name="close-outline"></ion-icon></button>
+            <span class="cart-price">€${item.Price}</span>
+            <button class="delCartItemBtn" data-productid="${item.ProductID}"><ion-icon name="close-outline"></ion-icon></button>
         `;
-        cartItemsContainer.appendChild(productElement);
+        cartItemsContainer.appendChild(cartItemElement);
+
+        // Reattach event listeners to newly added elements
+        attachQuantityUpdateListeners(cartItemElement, item.ProductID);
     }
+
+    const refreshCartItemDisplay = (productId, newQuantity) => {
+        // Update the displayed quantity in the cart item
+        const itemElement = document.querySelector(`.cart-item[data-productid="${productId}"] input[type="number"]`);
+        if (itemElement) {
+            itemElement.value = newQuantity;
+        }
+        updateCartSummary();
+    };
+    
+    const removeCartItemDisplay = (productId) => {
+        // Remove the cart item element from the DOM
+        const itemElement = document.querySelector(`.cart-item[data-productid="${productId}"]`);
+        if (itemElement) {
+            itemElement.remove();
+        }
+        updateCartSummary();
+    };
+    
+    const updateCartSummary = (items) => {
+        // Calculate total price and item count
+        let total = 0;
+        let itemCount = 0;
+
+        items.forEach(item => {
+            total += item.Price * item.Quantity;
+            itemCount += item.Quantity;
+        });
+
+        // Update the total price and item count in the summary section
+        const totalPriceElement = document.querySelector('.summary .total-price span:last-child');
+        const itemCountElement = document.querySelector('.cart-header p');
+
+        if (totalPriceElement && itemCountElement) {
+            totalPriceElement.textContent = `€${total.toFixed(2)}`;
+            itemCountElement.textContent = `${itemCount} items`;
+        }
+    };
+
+    const attachQuantityUpdateListeners = (cartItemElement, productID) => {
+        const decreaseButton = cartItemElement.querySelector('.decrease-quantity');
+        const increaseButton = cartItemElement.querySelector('.increase-quantity');
+        const deleteButton = cartItemElement.querySelector('.delCartItemBtn');
+        const quantityInput = cartItemElement.querySelector('#quantity-input');
+    
+        decreaseButton.addEventListener('click', () => {
+            const newQuantity = Math.max(0, parseInt(quantityInput.value, 10) - 1);
+            if (newQuantity > 0) {
+                updateQuantity(productID, newQuantity);
+            } else {
+                deleteCartItem(productID);
+            }
+        });
+    
+        increaseButton.addEventListener('click', () => {
+            const newQuantity = parseInt(quantityInput.value, 10) + 1;
+            updateQuantity(productID, newQuantity);
+        });
+    
+        deleteButton.addEventListener('click', () => {
+            deleteCartItem(productID);
+        });
+    };
 
     return {
         isUserLoggedIn,
@@ -149,7 +239,8 @@ const dom = (() => {
         changeItemQuantity,
         updateQuantity,
         deleteCartItem,
-        displayProductInCart,
+        populateShoppingCart,
+        updateCartSummary,
     }
 })();
 

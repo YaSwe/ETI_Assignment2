@@ -30,17 +30,28 @@ type ShopCartItem struct {
 func AddNewCart(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	userID := params["userID"]
-	_, err := db.Exec("INSERT INTO ShopCart (ID) VALUES (?)", userID)
+
+	result, err := db.Exec("INSERT INTO ShopCart (ID) VALUES (?)", userID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	newCartID, err := result.LastInsertId()
+	if err != nil {
+		http.Error(w, "Failed to retrieve new cart ID", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]int64{"ShopCartID": newCartID})
 }
 
 func AddOrUpdateCartItem(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	cartID := params["cartID"]
+
 	var item ShopCartItem
 	err := json.NewDecoder(r.Body).Decode(&item)
 	if err != nil {
@@ -50,7 +61,7 @@ func AddOrUpdateCartItem(w http.ResponseWriter, r *http.Request) {
 
 	// Check if the item is already in the cart
 	var exists bool
-	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM ShopCartItem WHERE ShopCartID = ? AND ProductID = ?)", cartID, item.ProductID).Scan(&exists)
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM ShopCartItem WHERE ShopCartID=? AND ProductID=?)", cartID, item.ProductID).Scan(&exists)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -80,12 +91,14 @@ func ModifyCartItem(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	_, err = db.Exec("UPDATE ShopCartItem SET Quantity = ? WHERE ShopCartID = ? AND ProductID = ?", item.Quantity, cartID, productID)
+	_, err = db.Exec("UPDATE ShopCartItem SET Quantity=? WHERE ShopCartID=? AND ProductID=?", item.Quantity, cartID, productID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(map[string]interface{}{"message": "Cart item updated successfully"})
 }
 
 func DeleteCartItem(w http.ResponseWriter, r *http.Request) {
@@ -104,7 +117,13 @@ func DeleteCartItem(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetCartItems(cartID string) ([]Product, bool) {
-	rows, err := db.Query(`SELECT ProductID, ProductTitle, ProductDesc, ProductImage, Price, Quantity FROM ShopCartItem WHERE ShopCartID = ?`, cartID)
+	query := `
+        SELECT p.ProductID, p.ProductTitle, p.ProductDesc, p.ProductImage, p.Price, sci.Quantity 
+        FROM ShopCartItem sci
+        JOIN Products p ON sci.ProductID = p.ProductID
+        WHERE sci.ShopCartID = ?`
+
+	rows, err := db.Query(query, cartID)
 	if err != nil {
 		log.Printf("Could not get cart items: %v", err)
 		return nil, false

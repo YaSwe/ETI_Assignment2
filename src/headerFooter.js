@@ -19,7 +19,7 @@ const loadHeaderFooter = (() => {
                     </div>
                     <span id="accountLink"><ion-icon name="person-outline"></ion-icon><a href="#">Account</a></span>
                     <span id="logoutLink"><ion-icon name="log-out-outline"></ion-icon><a href="#" class="logoutBtn">Logout</a></span>
-                    <span><ion-icon name="basket-outline"></ion-icon><a href="#">Basket</a></span>
+                    <span class="cart-link"><ion-icon name="basket-outline"></ion-icon>Basket</span>
                 </div>
             </div>
             <nav>

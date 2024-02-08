@@ -36,11 +36,11 @@ func main() {
 	router.HandleFunc("/api/login", LoginUser).Methods("POST")
 
 	// Shopping Cart Service Routes
-	router.HandleFunc("/api/cart/{cartID}", GetCartHandler).Methods("GET")
 	router.HandleFunc("/api/cart/{userID}", AddNewCart).Methods("POST")
 	router.HandleFunc("/api/cart/{cartID}/items", AddOrUpdateCartItem).Methods("POST")
-	router.HandleFunc("/api/cart/{cartID}/items/{productID}", ModifyCartItem).Methods("PUT")
-	router.HandleFunc("/api/cart/{cartID}/items/{productID}", DeleteCartItem).Methods("DELETE")
+	router.HandleFunc("/api/cart/{cartID}/modify/{productID}", ModifyCartItem).Methods("PUT")
+	router.HandleFunc("/api/cart/{cartID}/delete/{productID}", DeleteCartItem).Methods("DELETE")
+	router.HandleFunc("/api/cart/details/{cartID}", GetCartHandler).Methods("GET")
 	/*
 		// Order Processing Service Routes
 		router.HandleFunc("/api/orders", CreateOrder).Methods("POST") // Create a new order
