@@ -7,15 +7,17 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
 	"io"
+	"log"
 	"net/http"
 )
 
 type Account struct {
+	ID        string `json:"ID"`
 	Name      string `json:"Name"`
 	Email     string `json:"Email"`
 	Password  string `json:"Password"`
 	CreatedAt string `json:"Created At"`
-	UserType  string `json:"User Type"`
+	UserType  string `json:"UserType"`
 }
 
 func HandleAccountRequest(w http.ResponseWriter, r *http.Request) {
@@ -68,6 +70,8 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
+	var account Account
+	var cart ShopCart
 
 	// Read the body into a byte slice
 	body, err := io.ReadAll(r.Body)
@@ -83,18 +87,31 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	id, userType, found := checkLoginCredentials(creds.Email, creds.Password)
-	if !found {
-		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "No accounts found")
-	} else {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(map[string]interface{}{
-			"id":       id,
-			"userType": userType,
-		})
+	err = db.QueryRow("SELECT ID, UserType FROM accounts WHERE Email=? AND Password=?", creds.Email, creds.Password).Scan(&account.ID, &account.UserType)
+	if err == sql.ErrNoRows {
+		http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
+		return
+	} else if err != nil {
+		log.Println(err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
 	}
+
+	// Get active shopping cart
+	err = db.QueryRow("SELECT ShopCartID, Quantity FROM ShopCart WHERE ID=?", account.ID).Scan(&cart.ShopCartID, &cart.Quantity)
+	if err != nil && err != sql.ErrNoRows {
+		log.Println(err)
+		http.Error(w, "Server error", http.StatusInternalServerError)
+		return
+	}
+
+	account.Email = creds.Email
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"Account": account,
+		"Cart":    cart,
+	})
 }
 
 func IsAccountExist(id string) (Account, bool) {
@@ -139,24 +156,4 @@ func DelAccount(id string) (int64, error) {
 		return 0, err
 	}
 	return result.RowsAffected()
-}
-
-func checkLoginCredentials(email string, password string) (string, string, bool) {
-	var id, userType string
-
-	results, err := db.Query("SELECT ID, UserType FROM accounts WHERE Email=? AND Password=?", email, password)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	if results.Next() {
-		err = results.Scan(&id, &userType)
-		if err != nil {
-			panic(err.Error())
-		}
-
-		return id, userType, true
-	}
-
-	return "", "", false
 }

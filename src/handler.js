@@ -2,6 +2,7 @@ import dom from './dom';
 import account from './account';
 import product from './product';
 import category from './category';
+import cart from './cart';
 
 const handler = (() => {
 
@@ -56,6 +57,33 @@ const handler = (() => {
             if (targetElement.classList.contains('decrease-quantity')) {
                 dom.changeItemQuantity('decrease');
             }
+            
+            if (targetElement.classList.contains('add-to-cart-btn')) {
+                const productID = e.target.getAttribute('data-productid');
+                const quantityInput = document.querySelector('#quantity-input');
+                const quantity = parseInt(quantityInput.value, 10);
+
+                if (quantity > 0) {
+                    const productData = {
+                        // Assuming you have functions or ways to get these details
+                        productId: getCurrentProductId(),
+                        productName: getProductName(),
+                        productPrice: getProductPrice(),
+                        productImage: getProductImage(),
+                        quantity: quantity
+                    };
+                    localStorage.setItem('recentlyAddedProduct', JSON.stringify(productData));
+
+                    cart.addOrUpdateCartItem(localStorage.getItem('CartID'), productID, quantity, (error, data) => {
+                        if (error) {
+                            console.error('Error adding item to cart:', error);
+                        } else {
+                            window.location.href = 'shoppingcart.html';
+                        }
+                    });
+                }
+            }
+            
         })
 
         if (loginForm) {
@@ -84,11 +112,31 @@ const handler = (() => {
                     "Email": email,
                     "Password": password,
                     "Created At": formattedDate,
-                    "User Type": 'user'
+                    "UserType": 'user'
                 }
                 account.createAccount(accountData);
             })
         }
+
+        document.querySelectorAll('.cart-item').forEach((item, index) => {
+            const decreaseQuantityButton = item.querySelector('.decrease-quantity');
+            const increaseQuantityButton = item.querySelector('.increase-quantity');
+            const deleteButton = item.querySelector('.delCartItemBtn');
+            const quantityInput = item.querySelector('input[type=number]');
+            const productId = item.dataset.productId; 
+    
+            decreaseQuantityButton.addEventListener('click', () => {
+                dom.updateQuantity(productId, Math.max(0, parseInt(quantityInput.value, 10) - 1)); 
+            });
+    
+            increaseQuantityButton.addEventListener('click', () => {
+                dom.updateQuantity(productId, parseInt(quantityInput.value, 10) + 1);
+            });
+    
+            deleteButton.addEventListener('click', () => {
+                dom.deleteCartItem(productId);
+            });
+        });
     }
 
     return { handleClicks };

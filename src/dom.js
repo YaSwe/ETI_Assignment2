@@ -69,12 +69,17 @@ const dom = (() => {
         const productTitle = document.querySelector('.product-title');
         const productDesc = document.querySelector('.product-description');
         const productPrice = document.querySelector('.price');
+        const addToCartBtn = document.querySelector('.add-to-cart-btn');
+
 
         if (productDetails) {
             productImage.src = `assets/products/${productData['ProductImage']}`;
             productTitle.textContent = productData['ProductTitle'];
             productDesc.textContent = productData['ProductDesc'];
             productPrice.textContent = '$' + productData['Price'];
+
+            addToCartBtn.setAttribute('data-productid', productData['ProductID']);
+
         }
         else
         {
@@ -96,12 +101,55 @@ const dom = (() => {
         itemQuantityInput.value = itemQuantity; 
     }
 
+    function updateQuantity(productId, newQuantity) {
+        cartApi.modifyCartItem(localStorage.getItem('CartID'), productId, newQuantity, (error, data) => {
+            if (error) {
+                console.error('Error updating cart item:', error);
+            } else {
+                console.log('Cart item updated:', data);
+                //window.location.reload(); 
+            }
+        });
+    }
+    
+    function deleteCartItem(productId) {
+        cartApi.deleteCartItem(localStorage.getItem('CartID'), productId, (error, data) => {
+            if (error) {
+                console.error('Error deleting cart item:', error);
+            } else {
+                console.log('Cart item deleted:', data);
+                window.location.reload(); 
+            }
+        });
+    }
+
+    const displayProductInCart = (productData) => {
+        const cartItemsContainer = document.querySelector('.cart-items');
+        const productElement = document.createElement('div');
+        productElement.className = 'cart-item';
+        productElement.innerHTML = `
+            <img src="${productData.productImage}" alt="${productData.productName}">
+            <span>${productData.productName}</span>
+            <div class="quantity-section">
+                <button class="quantity-btn decrease-quantity"><ion-icon class="decrease-quantity" name="remove-outline"></ion-icon></button>
+                <input type="number" id="quantity-input" value="${productData.quantity}" min="0">
+                <button class="quantity-btn increase-quantity"><ion-icon class="increase-quantity" name="add-outline"></ion-icon></button>
+            </div>
+            <span class="cart-price">€${productData.productPrice}</span>
+            <button class="delCartItemBtn"><ion-icon name="close-outline"></ion-icon></button>
+        `;
+        cartItemsContainer.appendChild(productElement);
+    }
+
     return {
         isUserLoggedIn,
         displayAllCategories,
         displayAllProducts,
         displayProductDetails,
         changeItemQuantity,
+        updateQuantity,
+        deleteCartItem,
+        displayProductInCart,
     }
 })();
 

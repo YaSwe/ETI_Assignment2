@@ -32,14 +32,15 @@ func main() {
 	router.HandleFunc("/api/categories", SearchCategory).Methods("GET")
 
 	// User Account Service Routes
-	router.HandleFunc("/api/accounts/{userID}", HandleAccountRequest).Methods("GET", "POST", "PUT", "DELETE")
-	router.HandleFunc("/api/accounts", LoginUser).Methods("POST")
+	router.HandleFunc("/api/accounts/{accountID}", HandleAccountRequest).Methods("GET", "POST", "PUT", "DELETE")
+	router.HandleFunc("/api/login", LoginUser).Methods("POST")
 
 	// Shopping Cart Service Routes
-	router.HandleFunc("/api/carts/{userID}", GetCart).Methods("GET")
-	router.HandleFunc("/api/carts/{userID}", AddNewCart).Methods("POST")
-	router.HandleFunc("/api/carts/{cartID}", AddExistingCart).Methods("PUT")
-	router.HandleFunc("/api/carts/{userID}/items", ModifyCartItems).Methods("PUT", "DELETE")
+	router.HandleFunc("/api/cart/{cartID}", GetCartHandler).Methods("GET")
+	router.HandleFunc("/api/cart/{userID}", AddNewCart).Methods("POST")
+	router.HandleFunc("/api/cart/{cartID}/items", AddOrUpdateCartItem).Methods("POST")
+	router.HandleFunc("/api/cart/{cartID}/items/{productID}", ModifyCartItem).Methods("PUT")
+	router.HandleFunc("/api/cart/{cartID}/items/{productID}", DeleteCartItem).Methods("DELETE")
 	/*
 		// Order Processing Service Routes
 		router.HandleFunc("/api/orders", CreateOrder).Methods("POST") // Create a new order

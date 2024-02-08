@@ -6,6 +6,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 )
 
@@ -26,58 +27,115 @@ type ShopCartItem struct {
 	Quantity   int     `json:"Quantity"`
 }
 
-func GetCart(w http.ResponseWriter, r *http.Request) {
+func AddNewCart(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	userID := params["userID"]
+	_, err := db.Exec("INSERT INTO ShopCart (ID) VALUES (?)", userID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+}
+
+func AddOrUpdateCartItem(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	cartID := params["cartID"]
+	var item ShopCartItem
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	// Check if the item is already in the cart
+	var exists bool
+	err = db.QueryRow("SELECT EXISTS(SELECT 1 FROM ShopCartItem WHERE ShopCartID = ? AND ProductID = ?)", cartID, item.ProductID).Scan(&exists)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	if exists {
+		// Update the existing item
+		_, err = db.Exec("UPDATE ShopCartItem SET Quantity = Quantity + ? WHERE ShopCartID = ? AND ProductID = ?", item.Quantity, cartID, item.ProductID)
+	} else {
+		// Add a new item
+		_, err = db.Exec("INSERT INTO ShopCartItem (ShopCartID, ProductID, Name, Price, Quantity) VALUES (?, ?, ?, ?, ?)", cartID, item.ProductID, item.Name, item.Price, item.Quantity)
+	}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func ModifyCartItem(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	cartID := params["cartID"]
+	productID := params["productID"]
+	var item ShopCartItem
+	err := json.NewDecoder(r.Body).Decode(&item)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	_, err = db.Exec("UPDATE ShopCartItem SET Quantity = ? WHERE ShopCartID = ? AND ProductID = ?", item.Quantity, cartID, productID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func DeleteCartItem(w http.ResponseWriter, r *http.Request) {
+	params := mux.Vars(r)
+	cartID := params["cartID"]
+	productID := params["productID"]
+
+	_, err := db.Exec("DELETE FROM ShopCartItem WHERE ShopCartID = ? AND ProductID = ?", cartID, productID)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "Item removed successfully")
+}
+
+func GetCartItems(cartID string) ([]Product, bool) {
+	rows, err := db.Query(`SELECT ProductID, ProductTitle, ProductDesc, ProductImage, Price, Quantity FROM ShopCartItem WHERE ShopCartID = ?`, cartID)
+	if err != nil {
+		log.Printf("Could not get cart items: %v", err)
+		return nil, false
+	}
+	defer rows.Close()
+
+	var products []Product
+	for rows.Next() {
+		var p Product
+		err := rows.Scan(&p.ProductID, &p.ProductTitle, &p.ProductDesc, &p.ProductImage, &p.Price, &p.Quantity)
+		if err != nil {
+			log.Printf("Could not scan product: %v", err)
+			return nil, false
+		}
+		products = append(products, p)
+	}
+
+	return products, len(products) > 0
+}
+
+func GetCartHandler(w http.ResponseWriter, r *http.Request) {
 	params := mux.Vars(r)
 	cartID := params["cartID"]
 
-	results, found := GetCartItems(cartID)
+	products, found := GetCartItems(cartID)
 	if !found {
 		w.WriteHeader(http.StatusNotFound)
-		fmt.Fprintf(w, "No product found")
-	} else {
-		w.WriteHeader(http.StatusOK)
-		json.NewEncoder(w).Encode(struct {
-			Products map[string]Product `json:"Products"`
-		}{results})
-	}
-}
-
-func AddNewCart(w http.ResponseWriter, r *http.Request) {
-	//params := mux.Vars(r)
-	//userID := params["userID"]
-
-}
-
-func AddExistingCart(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func ModifyCartItems(w http.ResponseWriter, r *http.Request) {
-
-}
-
-func GetCartItems(cartID string) (map[string]Product, bool) {
-	results, err := db.Query(`SELECT sc.*, (sc.Price*sc.Quantity) AS Total, p.Quantity AS pQuan, p.ProductImage
-		FROM ShopCartItem sc INNER JOIN product p ON sc.ProductID = p.ProductID WHERE ShopCartID=?`, cartID)
-	if err != nil {
-		panic(err.Error())
+		fmt.Fprintln(w, "No products found in cart")
+		return
 	}
 
-	var products map[string]Product = map[string]Product{}
-
-	for results.Next() {
-		var p Product
-		var id string
-
-		err := results.Scan(&id, &p.ProductTitle, &p.ProductDesc, &p.ProductImage, &p.Price, &p.Quantity)
-		if err != nil {
-			panic(err.Error())
-		}
-		products[id] = p
-	}
-
-	if len(products) == 0 {
-		return products, false
-	}
-	return products, true
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(products)
 }

@@ -5,7 +5,7 @@ const account = (() => {
 
     const createAccount = (accountData) => {
         let request = new XMLHttpRequest();
-        request.open('POST', url);
+        request.open('POST', url + "/id");
         
         request.onload = function() {
             if (request.status == 201) {
@@ -18,16 +18,30 @@ const account = (() => {
     }
 
     const checkLogin = (email, password) => {
-        let loginURL = url;
+        let loginURL = 'http://localhost:1000/api/login';
         let request = new XMLHttpRequest();
         request.open('POST', loginURL);
     
         request.onload = function() {
             // If email and password are found
             if (request.status == 200) {
-                let accountData = JSON.parse(this.response);
-                localStorage.setItem('accountID', accountData.id);
-                localStorage.setItem('userType', accountData.userType);
+                let responseData = JSON.parse(this.response);
+                console.log(responseData);
+                let accountData = responseData.Account;
+                let cartData = responseData.Cart;
+                localStorage.setItem('accountID', accountData.ID);
+                localStorage.setItem('userType', accountData.UserType);
+
+                // Check for and store active cart information if present
+                if (cartData && cartData.ShopCartID) {
+                    localStorage.setItem('CartID', cartData.ShopCartID.toString());
+                    localStorage.setItem('NumCartItem', cartData.Quantity.toString());
+                } else {
+                    // Handle the case where there is no active cart
+                    localStorage.removeItem('CartID');
+                    localStorage.setItem('NumCartItem', '0');
+                }
+
                 window.location.href = 'index.html';
                 return;
             } 
