@@ -86,11 +86,7 @@ const cart = (() => {
             return response.json(); 
         })
         .then(data => {
-            if (data) { 
-                console.log('Cart item modified successfully:', data);
-            }
             callback();
-            dom.updateCartSummary();
         })
         .catch(error => console.error('Error:', error));
     };
@@ -110,7 +106,6 @@ const cart = (() => {
                 console.log('Cart item deleted successfully:', data);
             }
             callback();
-            dom.updateCartSummary(); 
         })
         .catch(error => console.error('Error:', error));
     };

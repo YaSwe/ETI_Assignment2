@@ -2,6 +2,7 @@ import dom from './dom';
 import account from './account';
 import product from './product';
 import category from './category';
+import feedback from './feedback';
 import cart from './cart';
 
 const handler = (() => {
@@ -16,6 +17,7 @@ const handler = (() => {
             if (targetElement.classList.contains('logoutBtn')) {
                 localStorage.removeItem('accountID');
                 localStorage.removeItem('userType');
+                localStorage.removeItem('accountName');
                 window.location.reload();
             }
 
@@ -30,8 +32,12 @@ const handler = (() => {
                 const productID = e.target.getAttribute('data-link-productid');
                 product.getSelectedProduct(productID, (productData) => {
                     localStorage.setItem('product', JSON.stringify(productData)); // Save the selected product in localStorage
-                    window.location.href = 'productDetails.html';
                 });  
+
+                feedback.getFeedback(productID, (feedbackData) => {
+                    localStorage.setItem('feedback', JSON.stringify(feedbackData));
+                })
+                window.location.href = 'productDetails.html';
             }
 
             if (targetElement.hasAttribute('data-link-categoryid')) {
@@ -61,15 +67,54 @@ const handler = (() => {
                                 localStorage.setItem('cartItems', JSON.stringify(items));
                                 window.location.href = 'shoppingCart.html';
                             } else {
-                                console.log('No items found in cart.');
+                                window.location.href = 'shoppingCart.html';
                             }
                         });
                     } else {
-                        console.log('No cart found for the user.');
+                        window.location.href = 'shoppingCart.html';
                     }
                 } else {
                     window.location.href = 'login.html';
                 }
+            }
+
+            if (targetElement.classList.contains('createReviewBtn')) {
+                if (localStorage.getItem('accountID') == null) {
+                    window.location.href = 'login.html';
+                }
+                else {
+                    const modal = document.getElementById("reviewModal");
+                    modal.style.display = "block";
+                }
+            }
+
+            if (targetElement.classList.contains('close-button')) {
+                const modal = document.getElementById("reviewModal");
+                modal.style.display = "none";
+            }
+
+            window.onclick = function(event) {
+                const modal = document.getElementById("reviewModal");
+                if (event.target == modal) {
+                    modal.style.display = "none";
+                }
+            }
+
+            if (targetElement.classList.contains('submitCreateFeedback-btn')) {
+                e.preventDefault();
+                const productID = e.target.getAttribute('data-productid');
+                const accountID = localStorage.getItem('accountID');
+                const accountName = localStorage.getItem('accountName');
+                const feedbackDescInput = document.querySelector('#reviewDescInput').value;
+                let feedbackData = {
+                    "AccountID": parseInt(accountID, 10),
+                    "AccountName": accountName,
+                    "ProductID": parseInt(productID, 10),
+                    "Rating": parseInt(5, 10),
+                    "Comment": feedbackDescInput
+                }
+                feedback.createFeedback(feedbackData);
+                window.location.reload();
             }
         })
 

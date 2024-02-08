@@ -24,8 +24,8 @@ const loadHeaderFooter = (() => {
             </div>
             <nav>
                 <a class="shopBtn">Shop</a>
-                <a href="#feedback">Feedback</a>
-                <a href="#contact">Contact</a>
+                <a href="about.html">About Us</a>
+                <a href="contact.html">Contact</a>
             </nav>
         `;
 
@@ -48,7 +48,7 @@ const loadHeaderFooter = (() => {
                     </ul>
                 </div>
                 <div class="footer-column">
-                    <h3>Enchanted Planet</h3>
+                    <h3>EcoToy</h3>
                     <ul>
                         <li><a href="#">Home</a></li>
                         <li><a href="#">About</a></li>

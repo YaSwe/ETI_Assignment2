@@ -522,7 +522,7 @@ form {
 }
 
 .cart-item img {
-    width: 100px;
+    width: 200px;
 }
 
 .cart-price {
@@ -553,6 +553,97 @@ form {
 
 .checkout:hover {
     color: var(--white);
+}
+
+/* Feedback/Review */
+
+.reviews {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.review-container {
+    background-color: var(--beige);
+    gap: 30px;
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 30px;
+    width: 500px;
+}
+
+.review-title {
+    display: flex;
+    justify-content: space-between;
+}
+
+.review-container hr {
+    color: var(--light-grey);
+}
+
+.review-modal {
+    display: none; /* Hidden by default */
+    position: fixed; /* Stay in place */
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%; /* Full width */
+    height: 100%; /* Full height */
+    overflow: auto; /* Enable scroll if needed */
+    background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto; /* 15% from the top and centered */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 50%; /* Could be more or less, depending on screen size */
+    box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2), 0 6px 20px 0 rgba(0,0,0,0.19);
+}
+
+.close-button {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.close-button:hover,
+.close-button:focus {
+    color: black;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.feedback-form h3 {
+    margin-top: 0;
+}
+
+.feedback-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+    box-sizing: border-box; /* So the width includes padding */
+}
+
+.submit-btn {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
 }
 
 
@@ -669,3 +760,106 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+
+.contact-container{
+    margin: auto;
+    width: 85%;
+    background: #fff;
+    border-radius: 6px;
+    padding: 20px 60px 30px 40px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  }
+  .contact-container .contact-content{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .contact-container .contact-content .left-side{
+    width: 25%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 15px;
+    position: relative;
+  }
+  .contact-content .left-side::before{
+    content: '';
+    position: absolute;
+    height: 70%;
+    width: 2px;
+    right: -15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: #afafb6;
+  }
+  .contact-content .left-side .details{
+    margin: 14px;
+    text-align: center;
+  }
+  .contact-content .left-side .details i{
+    font-size: 30px;
+    color: #8CA9AD;
+    margin-bottom: 10px;
+  }
+  .contact-content .left-side .details .topic{
+    font-size: 18px;
+    font-weight: 500;
+  }
+  .contact-content .left-side .details .text-one,
+  .contact-content .left-side .details .text-two{
+    font-size: 14px;
+    color: #8CA9AD;
+  }
+  .contact-container .contact-content .right-side{
+    margin-top: auto;
+    width: 75%;
+    margin-left: 75px;
+  }
+  .contact-content .right-side .topic-text{
+    font-size: 23px;
+    font-weight: 600;
+    color: #8CA9AD;
+  }
+  .right-side .input-box{
+    height: 50px;
+    width: 100%;
+    margin: 12px 0;
+  }
+  .right-side .input-box input,
+  .right-side .input-box textarea{
+    height: 100%;
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 16px;
+    background: #F0F1F8;
+    border-radius: 6px;
+    padding: 0 15px;
+    resize: none;
+  }
+  .right-side .message-box{
+    min-height: 110px;
+  }
+  .right-side .input-box textarea{
+    padding-top: 6px;
+  }
+  .right-side .button{
+    display: inline-block;
+    margin-top: 12px;
+  }
+  .right-side .button input[type="button"]{
+    color: #fff;
+    font-size: 18px;
+    outline: none;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    background: #8CA9AD;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .button input[type="button"]:hover{
+    background: #8CA9AD;
+  }

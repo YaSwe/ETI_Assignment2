@@ -76,6 +76,7 @@ const dom = (() => {
         const quantityInput = document.querySelector('#quantity-input');
         const increaseQBtn = document.querySelector('.increase-quantity');
         const decreaseQBtn = document.querySelector('.decrease-quantity');
+        const createReviewBtn = document.querySelector('.submitCreateFeedback-btn');
 
         if (productDetails) {
             productImage.src = `assets/products/${productData['ProductImage']}`;
@@ -87,7 +88,7 @@ const dom = (() => {
             quantityInput.setAttribute('data-productid', productData['ProductID']);
             increaseQBtn.setAttribute('data-productid', productData['ProductID']);
             decreaseQBtn.setAttribute('data-productid', productData['ProductID']);
-
+            createReviewBtn.setAttribute('data-productid', productData['ProductID']);
         }
         else
         {
@@ -110,12 +111,14 @@ const dom = (() => {
     }
 
     const updateQuantity = (productId, newQuantity) => {
-        cart.modifyCartItem(localStorage.getItem('cartID'), productId, newQuantity, (error, data) => {
+        cart.modifyCartItem(localStorage.getItem('cartID'), productId, newQuantity, () => {
+            /*
             if (error) {
                 console.error('Error updating cart item:', error);
             } else {
                 refreshCartItemDisplay(productId, newQuantity);
-            }
+            }*/
+            populateShoppingCart();
         });
     }
     
@@ -129,7 +132,7 @@ const dom = (() => {
             }
         });
     }
-
+    
     const populateShoppingCart = () => {
         const cartID = localStorage.getItem('cartID');
         if (!cartID) {
@@ -159,7 +162,7 @@ const dom = (() => {
                 <input type="number" id="quantity-input" value="${item.Quantity}" min="0" data-productid="${item.ProductID}">
                 <button class="quantity-btn increase-quantity" data-productid="${item.ProductID}"><ion-icon name="add-outline"></ion-icon></button>
             </div>
-            <span class="cart-price">€${item.Price}</span>
+            <span class="cart-price">$${item.Price}</span>
             <button class="delCartItemBtn" data-productid="${item.ProductID}"><ion-icon name="close-outline"></ion-icon></button>
         `;
         cartItemsContainer.appendChild(cartItemElement);
@@ -199,10 +202,12 @@ const dom = (() => {
         // Update the total price and item count in the summary section
         const totalPriceElement = document.querySelector('.summary .total-price span:last-child');
         const itemCountElement = document.querySelector('.cart-header p');
+        const itemCountElement2 = document.querySelector('.summary-items span');
 
         if (totalPriceElement && itemCountElement) {
-            totalPriceElement.textContent = `€${total.toFixed(2)}`;
+            totalPriceElement.textContent = `$${total.toFixed(2)}`;
             itemCountElement.textContent = `${itemCount} items`;
+            itemCountElement2.textContent = `${itemCount} items`;
         }
     };
 
@@ -231,6 +236,24 @@ const dom = (() => {
         });
     };
 
+    const displayFeedback = (data) => {
+        const reviewListings = document.querySelector('.review-listings');
+        if (reviewListings) {
+            let keys = Object.keys(data.Feedbacks);
+
+            keys.forEach((key) => {
+                reviewListings.innerHTML += `
+                    <div class="review-container">
+                        <h3 class="review-title">${data.Feedbacks[key]["Comment"]}<span>${data.Feedbacks[key]["AccountName"]}</span></h3>
+                        <hr>
+                        <p class="review-desc">${data.Feedbacks[key]["Comment"]}</p>
+                    </div>
+                `;
+            })
+            
+        }
+    }
+
     return {
         isUserLoggedIn,
         displayAllCategories,
@@ -241,6 +264,7 @@ const dom = (() => {
         deleteCartItem,
         populateShoppingCart,
         updateCartSummary,
+        displayFeedback,
     }
 })();
 

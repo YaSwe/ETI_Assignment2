@@ -31,15 +31,16 @@ const account = (() => {
                 let cartData = responseData.Cart;
                 localStorage.setItem('accountID', accountData.ID);
                 localStorage.setItem('userType', accountData.UserType);
+                localStorage.setItem('accountName', accountData.Name);
 
                 // Check for and store active cart information if present
                 if (cartData && cartData.ShopCartID) {
                     localStorage.setItem('cartID', cartData.ShopCartID.toString());
-                    localStorage.setItem('numCartItem', cartData.Quantity.toString());
+                    //localStorage.setItem('numCartItem', cartData.Quantity.toString());
                 } else {
                     // Handle the case where there is no active cart
                     localStorage.removeItem('cartID');
-                    localStorage.setItem('numCartItem', '0');
+                    //localStorage.setItem('numCartItem', '0');
                 }
 
                 window.location.href = 'index.html';

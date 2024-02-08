@@ -41,15 +41,10 @@ func main() {
 	router.HandleFunc("/api/cart/{cartID}/modify/{productID}", ModifyCartItem).Methods("PUT")
 	router.HandleFunc("/api/cart/{cartID}/delete/{productID}", DeleteCartItem).Methods("DELETE")
 	router.HandleFunc("/api/cart/details/{cartID}", GetCartHandler).Methods("GET")
-	/*
-		// Order Processing Service Routes
-		router.HandleFunc("/api/orders", CreateOrder).Methods("POST") // Create a new order
-		router.HandleFunc("/api/orders/{orderID}", HandleOrderRequest).Methods("GET", "PATCH") // Get, update specific order
 
-		// Review and Rating Service Routes
-		router.HandleFunc("/api/products/{productID}/reviews", ListProductReviews).Methods("GET") // Get all reviews for a product
-		router.HandleFunc("/api/products/{productID}/reviews", SubmitProductReview).Methods("POST") // Submit a new review for a product
-	*/
+	// Feedback Service Routes
+	router.HandleFunc("/api/feedback/create", AddFeedbackHandler).Methods("POST")
+	router.HandleFunc("/api/feedback/{productID}", GetFeedbackHandler).Methods("GET")
 
 	// Enable CORS
 	c := cors.New(cors.Options{

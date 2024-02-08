@@ -87,7 +87,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err = db.QueryRow("SELECT ID, UserType FROM accounts WHERE Email=? AND Password=?", creds.Email, creds.Password).Scan(&account.ID, &account.UserType)
+	err = db.QueryRow("SELECT ID, UserType, Name FROM accounts WHERE Email=? AND Password=?", creds.Email, creds.Password).Scan(&account.ID, &account.UserType, &account.Name)
 	if err == sql.ErrNoRows {
 		http.Error(w, "Invalid login credentials", http.StatusUnauthorized)
 		return
@@ -98,7 +98,7 @@ func LoginUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get active shopping cart
-	err = db.QueryRow("SELECT ShopCartID, Quantity FROM ShopCart WHERE ID=?", account.ID).Scan(&cart.ShopCartID, &cart.Quantity)
+	err = db.QueryRow("SELECT ShopCartID FROM ShopCart WHERE ID=?", account.ID).Scan(&cart.ShopCartID)
 	if err != nil && err != sql.ErrNoRows {
 		log.Println(err)
 		http.Error(w, "Server error", http.StatusInternalServerError)
