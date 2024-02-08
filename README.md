@@ -29,21 +29,8 @@ This microservice allows users to store their wanted items in a shopping cart fo
 This microservice allows users to create and update their feedback for products.
 
 #  4.2.3.2.	Architecture diagram
+![image](https://github.com/YaSwe/ETI_Assignment2/assets/92706469/cdb8a68a-3f6f-433c-b281-b93174e6b3fd)
 
-                             +--------------------------------+
-                             |         Web Application        |
-                             +--------------------------------+
-                                       |   |   |   |   |
-           +----------------------------------------------------------------+
-           |                  |              |               |              |
-+--------------------------+ +------------------------------+ +--------------------------+
-| Feedback Microservice    | | Product Catalog Microservice | | User Authentication      |
-|        Container         | |         Container            | |      Container           |
-+--------------------------+ +------------------------------+ +--------------------------+
-                                       |               |
-                                    +---------------------+
-                                    |       Database      |
-                                    +---------------------+
 
 # 4.2.3.3.	Instructions for setting up and running your solution
 
